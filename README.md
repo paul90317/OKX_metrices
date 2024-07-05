@@ -8,8 +8,8 @@
 ## Result
 * ROI = -0.007324068847216057%
 * Win Rate = 22.5%
-* MDD = -0.0018329626304295174%
-* Odds Ratio (invest ETH instead of BTC) = 36.29032258064516%
+* MDD = -0.005459911354858151%
+* Odds Ratio = 0.2903225806451613
 * Profit Factor = 0.3154451570613693
 * Sharpe Ratio = -0.7562716302573089
 

@@ -15,18 +15,21 @@ data = [{
     'instId': r['instId'],
     } for r in json.load(open('trades.json', 'r'))['data']]
 
+# add the fee of opened trade to the closed trade
 trades = [] # A list of closed trade
 for r in data:
     if r['side'] == 'sell' and r['posSide'] == 'long' or r['side'] == 'buy' and r['posSide'] == 'short':
         # closed trade
         if r['posSide'] == 'long':
+            # long
             opened_fillPx = r['fillPx'] - r['fillPnl'] / leverage
-            r['cost'] = opened_fillPx
+            r['cost'] = opened_fillPx # the money you buy the virtual currency
         else:
+            # short
             opened_fillPx = r['fillPx'] + r['fillPnl'] / leverage
-            r['cost'] = r['fillPx']
-         
-        r['fee'] -= fee_rate * leverage * opened_fillPx
+            r['cost'] = r['fillPx'] # the money you buy the virtual currency
+        
+        r['fee'] -= fee_rate * leverage * opened_fillPx # add the fee of opened trade to the closed trade
         trades.append(r)
         
 ## Calculate ROI
@@ -53,31 +56,15 @@ highest_capital = 8000
 current_capital = 8000
 MDD = 0
 for t in trades:
-    current_capital += t['fillPnl']
+    current_capital += t['fillPnl'] + t['fee']
     MDD = min(MDD, (current_capital - highest_capital) / highest_capital)
     highest_capital = max(highest_capital, current_capital)
 
 print(f'* MDD = {MDD}%')
 
-# Calculate Odds Ratio (invest ETH instead of BTC)
-win_count_eth = 0
-count_eth = 0
-win_count_btc = 0
-count_btc = 0
-for t in trades:
-    if t['fillPnl'] + t['fee'] > 0:
-        if t['instId'] == 'ETH-USDT-SWAP':
-            win_count_eth += 1
-        else:
-            win_count_btc += 1
-            
-    if t['instId'] == 'ETH-USDT-SWAP':
-        count_eth += 1
-    else:
-        count_btc += 1
-        
-odds_ratio = win_count_eth / count_eth / win_count_btc * count_btc
-print(f'* Odds Ratio (invest ETH instead of BTC) = {odds_ratio * 100}%')
+# Calculate Odds Ratio
+odds_ratio = win_rate / (1 - win_rate)
+print(f'* Odds Ratio = {odds_ratio}')
 
 # Calculate Profit Factor
 gross_profit = 0
@@ -92,7 +79,7 @@ for t in trades:
 profit_factor = gross_profit / gross_loss
 print(f'* Profit Factor = {profit_factor}')
 
-# Calculate Sharpe Ratio
+# Calculate Sharpe Ratio (suppose risk-free return is 0)
 import math
 rets = [(t['fillPnl'] + t['fee']) / (t['cost'] - t['fee']) for t in trades]
 avg_ret = sum(rets) / len(rets)
