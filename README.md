@@ -1,6 +1,6 @@
 # Backend Question
 
-## Build
+## Build and Run
 1. install python3
 2. put trade history to trades.json
 3. run command `python3 metrices.py`
